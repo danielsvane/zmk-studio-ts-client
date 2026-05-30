@@ -10,12 +10,59 @@ import { BehaviorBinding } from "./keymap";
 
 export const protobufPackage = "zmk.combos";
 
+export enum SetComboResponse {
+  SET_COMBO_RESP_OK = 0,
+  SET_COMBO_RESP_INVALID_LOCATION = 1,
+  SET_COMBO_RESP_INVALID_BEHAVIOR = 2,
+  SET_COMBO_RESP_INVALID_PARAMETERS = 3,
+  UNRECOGNIZED = -1,
+}
+
+export function setComboResponseFromJSON(object: any): SetComboResponse {
+  switch (object) {
+    case 0:
+    case "SET_COMBO_RESP_OK":
+      return SetComboResponse.SET_COMBO_RESP_OK;
+    case 1:
+    case "SET_COMBO_RESP_INVALID_LOCATION":
+      return SetComboResponse.SET_COMBO_RESP_INVALID_LOCATION;
+    case 2:
+    case "SET_COMBO_RESP_INVALID_BEHAVIOR":
+      return SetComboResponse.SET_COMBO_RESP_INVALID_BEHAVIOR;
+    case 3:
+    case "SET_COMBO_RESP_INVALID_PARAMETERS":
+      return SetComboResponse.SET_COMBO_RESP_INVALID_PARAMETERS;
+    case -1:
+    case "UNRECOGNIZED":
+    default:
+      return SetComboResponse.UNRECOGNIZED;
+  }
+}
+
+export function setComboResponseToJSON(object: SetComboResponse): string {
+  switch (object) {
+    case SetComboResponse.SET_COMBO_RESP_OK:
+      return "SET_COMBO_RESP_OK";
+    case SetComboResponse.SET_COMBO_RESP_INVALID_LOCATION:
+      return "SET_COMBO_RESP_INVALID_LOCATION";
+    case SetComboResponse.SET_COMBO_RESP_INVALID_BEHAVIOR:
+      return "SET_COMBO_RESP_INVALID_BEHAVIOR";
+    case SetComboResponse.SET_COMBO_RESP_INVALID_PARAMETERS:
+      return "SET_COMBO_RESP_INVALID_PARAMETERS";
+    case SetComboResponse.UNRECOGNIZED:
+    default:
+      return "UNRECOGNIZED";
+  }
+}
+
 export interface Request {
   getCombos?: boolean | undefined;
+  setCombo?: SetComboRequest | undefined;
 }
 
 export interface Response {
   getCombos?: Combos | undefined;
+  setCombo?: SetComboResponse | undefined;
 }
 
 export interface Notification {
@@ -27,6 +74,12 @@ export interface Notification {
  * frontend can reuse the existing behavior-display + behavior-picker machinery.
  */
 export interface Combo {
+  /**
+   * key_positions is a nanopb static array (see combos.options.in) so it
+   * round-trips through both the get_combos response encode AND the set_combo
+   * request decode without per-field callbacks (the RPC framework decodes
+   * requests generically with no callback setup).
+   */
   keyPositions: number[];
   /** Bitmask of layers the combo is active on. 0 = all layers. */
   layers: number;
@@ -51,14 +104,26 @@ export interface Combos {
   maxKeysPerCombo: number;
 }
 
+/**
+ * Edit the combo occupying pool slot `index` in place (M2: RAM-only, lost on
+ * reboot). Mirrors keymap's SetLayerBindingRequest.
+ */
+export interface SetComboRequest {
+  index: number;
+  combo: Combo | undefined;
+}
+
 function createBaseRequest(): Request {
-  return { getCombos: undefined };
+  return { getCombos: undefined, setCombo: undefined };
 }
 
 export const Request = {
   encode(message: Request, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
     if (message.getCombos !== undefined) {
       writer.uint32(8).bool(message.getCombos);
+    }
+    if (message.setCombo !== undefined) {
+      SetComboRequest.encode(message.setCombo, writer.uint32(18).fork()).ldelim();
     }
     return writer;
   },
@@ -77,6 +142,13 @@ export const Request = {
 
           message.getCombos = reader.bool();
           continue;
+        case 2:
+          if (tag !== 18) {
+            break;
+          }
+
+          message.setCombo = SetComboRequest.decode(reader, reader.uint32());
+          continue;
       }
       if ((tag & 7) === 4 || tag === 0) {
         break;
@@ -87,13 +159,19 @@ export const Request = {
   },
 
   fromJSON(object: any): Request {
-    return { getCombos: isSet(object.getCombos) ? globalThis.Boolean(object.getCombos) : undefined };
+    return {
+      getCombos: isSet(object.getCombos) ? globalThis.Boolean(object.getCombos) : undefined,
+      setCombo: isSet(object.setCombo) ? SetComboRequest.fromJSON(object.setCombo) : undefined,
+    };
   },
 
   toJSON(message: Request): unknown {
     const obj: any = {};
     if (message.getCombos !== undefined) {
       obj.getCombos = message.getCombos;
+    }
+    if (message.setCombo !== undefined) {
+      obj.setCombo = SetComboRequest.toJSON(message.setCombo);
     }
     return obj;
   },
@@ -104,18 +182,24 @@ export const Request = {
   fromPartial<I extends Exact<DeepPartial<Request>, I>>(object: I): Request {
     const message = createBaseRequest();
     message.getCombos = object.getCombos ?? undefined;
+    message.setCombo = (object.setCombo !== undefined && object.setCombo !== null)
+      ? SetComboRequest.fromPartial(object.setCombo)
+      : undefined;
     return message;
   },
 };
 
 function createBaseResponse(): Response {
-  return { getCombos: undefined };
+  return { getCombos: undefined, setCombo: undefined };
 }
 
 export const Response = {
   encode(message: Response, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
     if (message.getCombos !== undefined) {
       Combos.encode(message.getCombos, writer.uint32(10).fork()).ldelim();
+    }
+    if (message.setCombo !== undefined) {
+      writer.uint32(16).int32(message.setCombo);
     }
     return writer;
   },
@@ -134,6 +218,13 @@ export const Response = {
 
           message.getCombos = Combos.decode(reader, reader.uint32());
           continue;
+        case 2:
+          if (tag !== 16) {
+            break;
+          }
+
+          message.setCombo = reader.int32() as any;
+          continue;
       }
       if ((tag & 7) === 4 || tag === 0) {
         break;
@@ -144,13 +235,19 @@ export const Response = {
   },
 
   fromJSON(object: any): Response {
-    return { getCombos: isSet(object.getCombos) ? Combos.fromJSON(object.getCombos) : undefined };
+    return {
+      getCombos: isSet(object.getCombos) ? Combos.fromJSON(object.getCombos) : undefined,
+      setCombo: isSet(object.setCombo) ? setComboResponseFromJSON(object.setCombo) : undefined,
+    };
   },
 
   toJSON(message: Response): unknown {
     const obj: any = {};
     if (message.getCombos !== undefined) {
       obj.getCombos = Combos.toJSON(message.getCombos);
+    }
+    if (message.setCombo !== undefined) {
+      obj.setCombo = setComboResponseToJSON(message.setCombo);
     }
     return obj;
   },
@@ -163,6 +260,7 @@ export const Response = {
     message.getCombos = (object.getCombos !== undefined && object.getCombos !== null)
       ? Combos.fromPartial(object.getCombos)
       : undefined;
+    message.setCombo = object.setCombo ?? undefined;
     return message;
   },
 };
@@ -537,6 +635,80 @@ export const Combos = {
     message.combos = object.combos?.map((e) => ComboEntry.fromPartial(e)) || [];
     message.maxCombos = object.maxCombos ?? 0;
     message.maxKeysPerCombo = object.maxKeysPerCombo ?? 0;
+    return message;
+  },
+};
+
+function createBaseSetComboRequest(): SetComboRequest {
+  return { index: 0, combo: undefined };
+}
+
+export const SetComboRequest = {
+  encode(message: SetComboRequest, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
+    if (message.index !== 0) {
+      writer.uint32(8).uint32(message.index);
+    }
+    if (message.combo !== undefined) {
+      Combo.encode(message.combo, writer.uint32(18).fork()).ldelim();
+    }
+    return writer;
+  },
+
+  decode(input: _m0.Reader | Uint8Array, length?: number): SetComboRequest {
+    const reader = input instanceof _m0.Reader ? input : _m0.Reader.create(input);
+    let end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseSetComboRequest();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1:
+          if (tag !== 8) {
+            break;
+          }
+
+          message.index = reader.uint32();
+          continue;
+        case 2:
+          if (tag !== 18) {
+            break;
+          }
+
+          message.combo = Combo.decode(reader, reader.uint32());
+          continue;
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skipType(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(object: any): SetComboRequest {
+    return {
+      index: isSet(object.index) ? globalThis.Number(object.index) : 0,
+      combo: isSet(object.combo) ? Combo.fromJSON(object.combo) : undefined,
+    };
+  },
+
+  toJSON(message: SetComboRequest): unknown {
+    const obj: any = {};
+    if (message.index !== 0) {
+      obj.index = Math.round(message.index);
+    }
+    if (message.combo !== undefined) {
+      obj.combo = Combo.toJSON(message.combo);
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<SetComboRequest>, I>>(base?: I): SetComboRequest {
+    return SetComboRequest.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<SetComboRequest>, I>>(object: I): SetComboRequest {
+    const message = createBaseSetComboRequest();
+    message.index = object.index ?? 0;
+    message.combo = (object.combo !== undefined && object.combo !== null) ? Combo.fromPartial(object.combo) : undefined;
     return message;
   },
 };
