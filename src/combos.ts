@@ -222,7 +222,16 @@ export interface Combo {
   keyPositions: number[];
   /** Bitmask of layers the combo is active on. 0 = all layers. */
   layers: number;
-  binding: BehaviorBinding | undefined;
+  binding:
+    | BehaviorBinding
+    | undefined;
+  /**
+   * sint32 (zigzag): timeout_ms and require_prior_idle_ms are commonly small or
+   * -1 ("disabled"). Plain int32 encodes a negative as a 10-byte varint; sint32
+   * encodes -1 as a single byte, shrinking set_combo/add_combo requests (and the
+   * RX-buffer pressure flagged in A6 / the M2 RX-buffer fix). Transparent to the
+   * firmware (still int32_t) and the TS client (still number).
+   */
   timeoutMs: number;
   requirePriorIdleMs: number;
   slowRelease: boolean;
@@ -707,10 +716,10 @@ export const Combo = {
       BehaviorBinding.encode(message.binding, writer.uint32(26).fork()).ldelim();
     }
     if (message.timeoutMs !== 0) {
-      writer.uint32(32).int32(message.timeoutMs);
+      writer.uint32(32).sint32(message.timeoutMs);
     }
     if (message.requirePriorIdleMs !== 0) {
-      writer.uint32(40).int32(message.requirePriorIdleMs);
+      writer.uint32(40).sint32(message.requirePriorIdleMs);
     }
     if (message.slowRelease !== false) {
       writer.uint32(48).bool(message.slowRelease);
@@ -761,14 +770,14 @@ export const Combo = {
             break;
           }
 
-          message.timeoutMs = reader.int32();
+          message.timeoutMs = reader.sint32();
           continue;
         case 5:
           if (tag !== 40) {
             break;
           }
 
-          message.requirePriorIdleMs = reader.int32();
+          message.requirePriorIdleMs = reader.sint32();
           continue;
         case 6:
           if (tag !== 48) {
