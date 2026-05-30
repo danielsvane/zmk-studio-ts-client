@@ -6,6 +6,7 @@
 
 /* eslint-disable */
 import * as _m0 from "protobufjs/minimal";
+import { BehaviorBinding } from "./keymap";
 
 export const protobufPackage = "zmk.combos";
 
@@ -22,10 +23,32 @@ export interface Notification {
 }
 
 /**
- * Milestone 0 walking-skeleton: empty container. Fleshed out in Milestone 1
- * with `repeated ComboEntry combos`, `max_combos`, `max_keys_per_combo`.
+ * A single combo definition. Modeled on keymap's Layer/BehaviorBinding so the
+ * frontend can reuse the existing behavior-display + behavior-picker machinery.
  */
+export interface Combo {
+  keyPositions: number[];
+  /** Bitmask of layers the combo is active on. 0 = all layers. */
+  layers: number;
+  binding: BehaviorBinding | undefined;
+  timeoutMs: number;
+  requirePriorIdleMs: number;
+  slowRelease: boolean;
+}
+
+/**
+ * Pairs a combo with its stable pool index (== virtual-key-position arg ==
+ * NVS key). Indexes are not necessarily contiguous once add/delete land.
+ */
+export interface ComboEntry {
+  index: number;
+  combo: Combo | undefined;
+}
+
 export interface Combos {
+  combos: ComboEntry[];
+  maxCombos: number;
+  maxKeysPerCombo: number;
 }
 
 function createBaseRequest(): Request {
@@ -205,12 +228,245 @@ export const Notification = {
   },
 };
 
+function createBaseCombo(): Combo {
+  return { keyPositions: [], layers: 0, binding: undefined, timeoutMs: 0, requirePriorIdleMs: 0, slowRelease: false };
+}
+
+export const Combo = {
+  encode(message: Combo, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
+    writer.uint32(10).fork();
+    for (const v of message.keyPositions) {
+      writer.int32(v);
+    }
+    writer.ldelim();
+    if (message.layers !== 0) {
+      writer.uint32(16).uint32(message.layers);
+    }
+    if (message.binding !== undefined) {
+      BehaviorBinding.encode(message.binding, writer.uint32(26).fork()).ldelim();
+    }
+    if (message.timeoutMs !== 0) {
+      writer.uint32(32).int32(message.timeoutMs);
+    }
+    if (message.requirePriorIdleMs !== 0) {
+      writer.uint32(40).int32(message.requirePriorIdleMs);
+    }
+    if (message.slowRelease !== false) {
+      writer.uint32(48).bool(message.slowRelease);
+    }
+    return writer;
+  },
+
+  decode(input: _m0.Reader | Uint8Array, length?: number): Combo {
+    const reader = input instanceof _m0.Reader ? input : _m0.Reader.create(input);
+    let end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseCombo();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1:
+          if (tag === 8) {
+            message.keyPositions.push(reader.int32());
+
+            continue;
+          }
+
+          if (tag === 10) {
+            const end2 = reader.uint32() + reader.pos;
+            while (reader.pos < end2) {
+              message.keyPositions.push(reader.int32());
+            }
+
+            continue;
+          }
+
+          break;
+        case 2:
+          if (tag !== 16) {
+            break;
+          }
+
+          message.layers = reader.uint32();
+          continue;
+        case 3:
+          if (tag !== 26) {
+            break;
+          }
+
+          message.binding = BehaviorBinding.decode(reader, reader.uint32());
+          continue;
+        case 4:
+          if (tag !== 32) {
+            break;
+          }
+
+          message.timeoutMs = reader.int32();
+          continue;
+        case 5:
+          if (tag !== 40) {
+            break;
+          }
+
+          message.requirePriorIdleMs = reader.int32();
+          continue;
+        case 6:
+          if (tag !== 48) {
+            break;
+          }
+
+          message.slowRelease = reader.bool();
+          continue;
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skipType(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(object: any): Combo {
+    return {
+      keyPositions: globalThis.Array.isArray(object?.keyPositions)
+        ? object.keyPositions.map((e: any) => globalThis.Number(e))
+        : [],
+      layers: isSet(object.layers) ? globalThis.Number(object.layers) : 0,
+      binding: isSet(object.binding) ? BehaviorBinding.fromJSON(object.binding) : undefined,
+      timeoutMs: isSet(object.timeoutMs) ? globalThis.Number(object.timeoutMs) : 0,
+      requirePriorIdleMs: isSet(object.requirePriorIdleMs) ? globalThis.Number(object.requirePriorIdleMs) : 0,
+      slowRelease: isSet(object.slowRelease) ? globalThis.Boolean(object.slowRelease) : false,
+    };
+  },
+
+  toJSON(message: Combo): unknown {
+    const obj: any = {};
+    if (message.keyPositions?.length) {
+      obj.keyPositions = message.keyPositions.map((e) => Math.round(e));
+    }
+    if (message.layers !== 0) {
+      obj.layers = Math.round(message.layers);
+    }
+    if (message.binding !== undefined) {
+      obj.binding = BehaviorBinding.toJSON(message.binding);
+    }
+    if (message.timeoutMs !== 0) {
+      obj.timeoutMs = Math.round(message.timeoutMs);
+    }
+    if (message.requirePriorIdleMs !== 0) {
+      obj.requirePriorIdleMs = Math.round(message.requirePriorIdleMs);
+    }
+    if (message.slowRelease !== false) {
+      obj.slowRelease = message.slowRelease;
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<Combo>, I>>(base?: I): Combo {
+    return Combo.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<Combo>, I>>(object: I): Combo {
+    const message = createBaseCombo();
+    message.keyPositions = object.keyPositions?.map((e) => e) || [];
+    message.layers = object.layers ?? 0;
+    message.binding = (object.binding !== undefined && object.binding !== null)
+      ? BehaviorBinding.fromPartial(object.binding)
+      : undefined;
+    message.timeoutMs = object.timeoutMs ?? 0;
+    message.requirePriorIdleMs = object.requirePriorIdleMs ?? 0;
+    message.slowRelease = object.slowRelease ?? false;
+    return message;
+  },
+};
+
+function createBaseComboEntry(): ComboEntry {
+  return { index: 0, combo: undefined };
+}
+
+export const ComboEntry = {
+  encode(message: ComboEntry, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
+    if (message.index !== 0) {
+      writer.uint32(8).uint32(message.index);
+    }
+    if (message.combo !== undefined) {
+      Combo.encode(message.combo, writer.uint32(18).fork()).ldelim();
+    }
+    return writer;
+  },
+
+  decode(input: _m0.Reader | Uint8Array, length?: number): ComboEntry {
+    const reader = input instanceof _m0.Reader ? input : _m0.Reader.create(input);
+    let end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseComboEntry();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1:
+          if (tag !== 8) {
+            break;
+          }
+
+          message.index = reader.uint32();
+          continue;
+        case 2:
+          if (tag !== 18) {
+            break;
+          }
+
+          message.combo = Combo.decode(reader, reader.uint32());
+          continue;
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skipType(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(object: any): ComboEntry {
+    return {
+      index: isSet(object.index) ? globalThis.Number(object.index) : 0,
+      combo: isSet(object.combo) ? Combo.fromJSON(object.combo) : undefined,
+    };
+  },
+
+  toJSON(message: ComboEntry): unknown {
+    const obj: any = {};
+    if (message.index !== 0) {
+      obj.index = Math.round(message.index);
+    }
+    if (message.combo !== undefined) {
+      obj.combo = Combo.toJSON(message.combo);
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<ComboEntry>, I>>(base?: I): ComboEntry {
+    return ComboEntry.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<ComboEntry>, I>>(object: I): ComboEntry {
+    const message = createBaseComboEntry();
+    message.index = object.index ?? 0;
+    message.combo = (object.combo !== undefined && object.combo !== null) ? Combo.fromPartial(object.combo) : undefined;
+    return message;
+  },
+};
+
 function createBaseCombos(): Combos {
-  return {};
+  return { combos: [], maxCombos: 0, maxKeysPerCombo: 0 };
 }
 
 export const Combos = {
-  encode(_: Combos, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
+  encode(message: Combos, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
+    for (const v of message.combos) {
+      ComboEntry.encode(v!, writer.uint32(10).fork()).ldelim();
+    }
+    if (message.maxCombos !== 0) {
+      writer.uint32(16).uint32(message.maxCombos);
+    }
+    if (message.maxKeysPerCombo !== 0) {
+      writer.uint32(24).uint32(message.maxKeysPerCombo);
+    }
     return writer;
   },
 
@@ -221,6 +477,27 @@ export const Combos = {
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
+        case 1:
+          if (tag !== 10) {
+            break;
+          }
+
+          message.combos.push(ComboEntry.decode(reader, reader.uint32()));
+          continue;
+        case 2:
+          if (tag !== 16) {
+            break;
+          }
+
+          message.maxCombos = reader.uint32();
+          continue;
+        case 3:
+          if (tag !== 24) {
+            break;
+          }
+
+          message.maxKeysPerCombo = reader.uint32();
+          continue;
       }
       if ((tag & 7) === 4 || tag === 0) {
         break;
@@ -230,20 +507,36 @@ export const Combos = {
     return message;
   },
 
-  fromJSON(_: any): Combos {
-    return {};
+  fromJSON(object: any): Combos {
+    return {
+      combos: globalThis.Array.isArray(object?.combos) ? object.combos.map((e: any) => ComboEntry.fromJSON(e)) : [],
+      maxCombos: isSet(object.maxCombos) ? globalThis.Number(object.maxCombos) : 0,
+      maxKeysPerCombo: isSet(object.maxKeysPerCombo) ? globalThis.Number(object.maxKeysPerCombo) : 0,
+    };
   },
 
-  toJSON(_: Combos): unknown {
+  toJSON(message: Combos): unknown {
     const obj: any = {};
+    if (message.combos?.length) {
+      obj.combos = message.combos.map((e) => ComboEntry.toJSON(e));
+    }
+    if (message.maxCombos !== 0) {
+      obj.maxCombos = Math.round(message.maxCombos);
+    }
+    if (message.maxKeysPerCombo !== 0) {
+      obj.maxKeysPerCombo = Math.round(message.maxKeysPerCombo);
+    }
     return obj;
   },
 
   create<I extends Exact<DeepPartial<Combos>, I>>(base?: I): Combos {
     return Combos.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<Combos>, I>>(_: I): Combos {
+  fromPartial<I extends Exact<DeepPartial<Combos>, I>>(object: I): Combos {
     const message = createBaseCombos();
+    message.combos = object.combos?.map((e) => ComboEntry.fromPartial(e)) || [];
+    message.maxCombos = object.maxCombos ?? 0;
+    message.maxKeysPerCombo = object.maxKeysPerCombo ?? 0;
     return message;
   },
 };
