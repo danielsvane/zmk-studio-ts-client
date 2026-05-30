@@ -10,6 +10,90 @@ import { BehaviorBinding } from "./keymap";
 
 export const protobufPackage = "zmk.combos";
 
+export enum AddComboErrorCode {
+  ADD_COMBO_ERR_OK = 0,
+  ADD_COMBO_ERR_GENERIC = 1,
+  ADD_COMBO_ERR_NO_SPACE = 2,
+  ADD_COMBO_ERR_INVALID_PARAMETERS = 3,
+  UNRECOGNIZED = -1,
+}
+
+export function addComboErrorCodeFromJSON(object: any): AddComboErrorCode {
+  switch (object) {
+    case 0:
+    case "ADD_COMBO_ERR_OK":
+      return AddComboErrorCode.ADD_COMBO_ERR_OK;
+    case 1:
+    case "ADD_COMBO_ERR_GENERIC":
+      return AddComboErrorCode.ADD_COMBO_ERR_GENERIC;
+    case 2:
+    case "ADD_COMBO_ERR_NO_SPACE":
+      return AddComboErrorCode.ADD_COMBO_ERR_NO_SPACE;
+    case 3:
+    case "ADD_COMBO_ERR_INVALID_PARAMETERS":
+      return AddComboErrorCode.ADD_COMBO_ERR_INVALID_PARAMETERS;
+    case -1:
+    case "UNRECOGNIZED":
+    default:
+      return AddComboErrorCode.UNRECOGNIZED;
+  }
+}
+
+export function addComboErrorCodeToJSON(object: AddComboErrorCode): string {
+  switch (object) {
+    case AddComboErrorCode.ADD_COMBO_ERR_OK:
+      return "ADD_COMBO_ERR_OK";
+    case AddComboErrorCode.ADD_COMBO_ERR_GENERIC:
+      return "ADD_COMBO_ERR_GENERIC";
+    case AddComboErrorCode.ADD_COMBO_ERR_NO_SPACE:
+      return "ADD_COMBO_ERR_NO_SPACE";
+    case AddComboErrorCode.ADD_COMBO_ERR_INVALID_PARAMETERS:
+      return "ADD_COMBO_ERR_INVALID_PARAMETERS";
+    case AddComboErrorCode.UNRECOGNIZED:
+    default:
+      return "UNRECOGNIZED";
+  }
+}
+
+export enum RemoveComboErrorCode {
+  REMOVE_COMBO_ERR_OK = 0,
+  REMOVE_COMBO_ERR_GENERIC = 1,
+  REMOVE_COMBO_ERR_INVALID_INDEX = 2,
+  UNRECOGNIZED = -1,
+}
+
+export function removeComboErrorCodeFromJSON(object: any): RemoveComboErrorCode {
+  switch (object) {
+    case 0:
+    case "REMOVE_COMBO_ERR_OK":
+      return RemoveComboErrorCode.REMOVE_COMBO_ERR_OK;
+    case 1:
+    case "REMOVE_COMBO_ERR_GENERIC":
+      return RemoveComboErrorCode.REMOVE_COMBO_ERR_GENERIC;
+    case 2:
+    case "REMOVE_COMBO_ERR_INVALID_INDEX":
+      return RemoveComboErrorCode.REMOVE_COMBO_ERR_INVALID_INDEX;
+    case -1:
+    case "UNRECOGNIZED":
+    default:
+      return RemoveComboErrorCode.UNRECOGNIZED;
+  }
+}
+
+export function removeComboErrorCodeToJSON(object: RemoveComboErrorCode): string {
+  switch (object) {
+    case RemoveComboErrorCode.REMOVE_COMBO_ERR_OK:
+      return "REMOVE_COMBO_ERR_OK";
+    case RemoveComboErrorCode.REMOVE_COMBO_ERR_GENERIC:
+      return "REMOVE_COMBO_ERR_GENERIC";
+    case RemoveComboErrorCode.REMOVE_COMBO_ERR_INVALID_INDEX:
+      return "REMOVE_COMBO_ERR_INVALID_INDEX";
+    case RemoveComboErrorCode.UNRECOGNIZED:
+    default:
+      return "UNRECOGNIZED";
+  }
+}
+
 export enum SetComboResponse {
   SET_COMBO_RESP_OK = 0,
   SET_COMBO_RESP_INVALID_LOCATION = 1,
@@ -55,14 +139,69 @@ export function setComboResponseToJSON(object: SetComboResponse): string {
   }
 }
 
+export enum SaveChangesErrorCode {
+  SAVE_CHANGES_ERR_OK = 0,
+  SAVE_CHANGES_ERR_GENERIC = 1,
+  SAVE_CHANGES_ERR_NOT_SUPPORTED = 2,
+  SAVE_CHANGES_ERR_NO_SPACE = 3,
+  UNRECOGNIZED = -1,
+}
+
+export function saveChangesErrorCodeFromJSON(object: any): SaveChangesErrorCode {
+  switch (object) {
+    case 0:
+    case "SAVE_CHANGES_ERR_OK":
+      return SaveChangesErrorCode.SAVE_CHANGES_ERR_OK;
+    case 1:
+    case "SAVE_CHANGES_ERR_GENERIC":
+      return SaveChangesErrorCode.SAVE_CHANGES_ERR_GENERIC;
+    case 2:
+    case "SAVE_CHANGES_ERR_NOT_SUPPORTED":
+      return SaveChangesErrorCode.SAVE_CHANGES_ERR_NOT_SUPPORTED;
+    case 3:
+    case "SAVE_CHANGES_ERR_NO_SPACE":
+      return SaveChangesErrorCode.SAVE_CHANGES_ERR_NO_SPACE;
+    case -1:
+    case "UNRECOGNIZED":
+    default:
+      return SaveChangesErrorCode.UNRECOGNIZED;
+  }
+}
+
+export function saveChangesErrorCodeToJSON(object: SaveChangesErrorCode): string {
+  switch (object) {
+    case SaveChangesErrorCode.SAVE_CHANGES_ERR_OK:
+      return "SAVE_CHANGES_ERR_OK";
+    case SaveChangesErrorCode.SAVE_CHANGES_ERR_GENERIC:
+      return "SAVE_CHANGES_ERR_GENERIC";
+    case SaveChangesErrorCode.SAVE_CHANGES_ERR_NOT_SUPPORTED:
+      return "SAVE_CHANGES_ERR_NOT_SUPPORTED";
+    case SaveChangesErrorCode.SAVE_CHANGES_ERR_NO_SPACE:
+      return "SAVE_CHANGES_ERR_NO_SPACE";
+    case SaveChangesErrorCode.UNRECOGNIZED:
+    default:
+      return "UNRECOGNIZED";
+  }
+}
+
 export interface Request {
   getCombos?: boolean | undefined;
   setCombo?: SetComboRequest | undefined;
+  checkUnsavedChanges?: boolean | undefined;
+  saveChanges?: boolean | undefined;
+  discardChanges?: boolean | undefined;
+  addCombo?: AddComboRequest | undefined;
+  removeCombo?: RemoveComboRequest | undefined;
 }
 
 export interface Response {
   getCombos?: Combos | undefined;
   setCombo?: SetComboResponse | undefined;
+  checkUnsavedChanges?: boolean | undefined;
+  saveChanges?: SaveChangesResponse | undefined;
+  discardChanges?: boolean | undefined;
+  addCombo?: AddComboResponse | undefined;
+  removeCombo?: RemoveComboResponse | undefined;
 }
 
 export interface Notification {
@@ -113,8 +252,60 @@ export interface SetComboRequest {
   combo: Combo | undefined;
 }
 
+/**
+ * Create a brand-new combo (M4). The firmware places it in the lowest free pool
+ * slot and returns the assigned index. Mirrors keymap's AddLayerRequest, but
+ * carries the full combo to create (unlike layers, a combo isn't useful empty).
+ */
+export interface AddComboRequest {
+  combo: Combo | undefined;
+}
+
+export interface AddComboResponse {
+  ok?: AddComboResponseDetails | undefined;
+  err?: AddComboErrorCode | undefined;
+}
+
+export interface AddComboResponseDetails {
+  index: number;
+  combo: Combo | undefined;
+}
+
+/**
+ * Delete the combo occupying pool slot `index` (M4). Mirrors keymap's
+ * RemoveLayerRequest.
+ */
+export interface RemoveComboRequest {
+  index: number;
+}
+
+export interface RemoveComboResponse {
+  ok?: RemoveComboOk | undefined;
+  err?: RemoveComboErrorCode | undefined;
+}
+
+export interface RemoveComboOk {
+}
+
+/**
+ * Result of save_changes. Mirrors keymap's SaveChangesResponse so the frontend
+ * can reuse the same error handling. NO_SPACE surfaces a full NVS partition.
+ */
+export interface SaveChangesResponse {
+  ok?: boolean | undefined;
+  err?: SaveChangesErrorCode | undefined;
+}
+
 function createBaseRequest(): Request {
-  return { getCombos: undefined, setCombo: undefined };
+  return {
+    getCombos: undefined,
+    setCombo: undefined,
+    checkUnsavedChanges: undefined,
+    saveChanges: undefined,
+    discardChanges: undefined,
+    addCombo: undefined,
+    removeCombo: undefined,
+  };
 }
 
 export const Request = {
@@ -124,6 +315,21 @@ export const Request = {
     }
     if (message.setCombo !== undefined) {
       SetComboRequest.encode(message.setCombo, writer.uint32(18).fork()).ldelim();
+    }
+    if (message.checkUnsavedChanges !== undefined) {
+      writer.uint32(24).bool(message.checkUnsavedChanges);
+    }
+    if (message.saveChanges !== undefined) {
+      writer.uint32(32).bool(message.saveChanges);
+    }
+    if (message.discardChanges !== undefined) {
+      writer.uint32(40).bool(message.discardChanges);
+    }
+    if (message.addCombo !== undefined) {
+      AddComboRequest.encode(message.addCombo, writer.uint32(50).fork()).ldelim();
+    }
+    if (message.removeCombo !== undefined) {
+      RemoveComboRequest.encode(message.removeCombo, writer.uint32(58).fork()).ldelim();
     }
     return writer;
   },
@@ -149,6 +355,41 @@ export const Request = {
 
           message.setCombo = SetComboRequest.decode(reader, reader.uint32());
           continue;
+        case 3:
+          if (tag !== 24) {
+            break;
+          }
+
+          message.checkUnsavedChanges = reader.bool();
+          continue;
+        case 4:
+          if (tag !== 32) {
+            break;
+          }
+
+          message.saveChanges = reader.bool();
+          continue;
+        case 5:
+          if (tag !== 40) {
+            break;
+          }
+
+          message.discardChanges = reader.bool();
+          continue;
+        case 6:
+          if (tag !== 50) {
+            break;
+          }
+
+          message.addCombo = AddComboRequest.decode(reader, reader.uint32());
+          continue;
+        case 7:
+          if (tag !== 58) {
+            break;
+          }
+
+          message.removeCombo = RemoveComboRequest.decode(reader, reader.uint32());
+          continue;
       }
       if ((tag & 7) === 4 || tag === 0) {
         break;
@@ -162,6 +403,13 @@ export const Request = {
     return {
       getCombos: isSet(object.getCombos) ? globalThis.Boolean(object.getCombos) : undefined,
       setCombo: isSet(object.setCombo) ? SetComboRequest.fromJSON(object.setCombo) : undefined,
+      checkUnsavedChanges: isSet(object.checkUnsavedChanges)
+        ? globalThis.Boolean(object.checkUnsavedChanges)
+        : undefined,
+      saveChanges: isSet(object.saveChanges) ? globalThis.Boolean(object.saveChanges) : undefined,
+      discardChanges: isSet(object.discardChanges) ? globalThis.Boolean(object.discardChanges) : undefined,
+      addCombo: isSet(object.addCombo) ? AddComboRequest.fromJSON(object.addCombo) : undefined,
+      removeCombo: isSet(object.removeCombo) ? RemoveComboRequest.fromJSON(object.removeCombo) : undefined,
     };
   },
 
@@ -172,6 +420,21 @@ export const Request = {
     }
     if (message.setCombo !== undefined) {
       obj.setCombo = SetComboRequest.toJSON(message.setCombo);
+    }
+    if (message.checkUnsavedChanges !== undefined) {
+      obj.checkUnsavedChanges = message.checkUnsavedChanges;
+    }
+    if (message.saveChanges !== undefined) {
+      obj.saveChanges = message.saveChanges;
+    }
+    if (message.discardChanges !== undefined) {
+      obj.discardChanges = message.discardChanges;
+    }
+    if (message.addCombo !== undefined) {
+      obj.addCombo = AddComboRequest.toJSON(message.addCombo);
+    }
+    if (message.removeCombo !== undefined) {
+      obj.removeCombo = RemoveComboRequest.toJSON(message.removeCombo);
     }
     return obj;
   },
@@ -185,12 +448,29 @@ export const Request = {
     message.setCombo = (object.setCombo !== undefined && object.setCombo !== null)
       ? SetComboRequest.fromPartial(object.setCombo)
       : undefined;
+    message.checkUnsavedChanges = object.checkUnsavedChanges ?? undefined;
+    message.saveChanges = object.saveChanges ?? undefined;
+    message.discardChanges = object.discardChanges ?? undefined;
+    message.addCombo = (object.addCombo !== undefined && object.addCombo !== null)
+      ? AddComboRequest.fromPartial(object.addCombo)
+      : undefined;
+    message.removeCombo = (object.removeCombo !== undefined && object.removeCombo !== null)
+      ? RemoveComboRequest.fromPartial(object.removeCombo)
+      : undefined;
     return message;
   },
 };
 
 function createBaseResponse(): Response {
-  return { getCombos: undefined, setCombo: undefined };
+  return {
+    getCombos: undefined,
+    setCombo: undefined,
+    checkUnsavedChanges: undefined,
+    saveChanges: undefined,
+    discardChanges: undefined,
+    addCombo: undefined,
+    removeCombo: undefined,
+  };
 }
 
 export const Response = {
@@ -200,6 +480,21 @@ export const Response = {
     }
     if (message.setCombo !== undefined) {
       writer.uint32(16).int32(message.setCombo);
+    }
+    if (message.checkUnsavedChanges !== undefined) {
+      writer.uint32(24).bool(message.checkUnsavedChanges);
+    }
+    if (message.saveChanges !== undefined) {
+      SaveChangesResponse.encode(message.saveChanges, writer.uint32(34).fork()).ldelim();
+    }
+    if (message.discardChanges !== undefined) {
+      writer.uint32(40).bool(message.discardChanges);
+    }
+    if (message.addCombo !== undefined) {
+      AddComboResponse.encode(message.addCombo, writer.uint32(50).fork()).ldelim();
+    }
+    if (message.removeCombo !== undefined) {
+      RemoveComboResponse.encode(message.removeCombo, writer.uint32(58).fork()).ldelim();
     }
     return writer;
   },
@@ -225,6 +520,41 @@ export const Response = {
 
           message.setCombo = reader.int32() as any;
           continue;
+        case 3:
+          if (tag !== 24) {
+            break;
+          }
+
+          message.checkUnsavedChanges = reader.bool();
+          continue;
+        case 4:
+          if (tag !== 34) {
+            break;
+          }
+
+          message.saveChanges = SaveChangesResponse.decode(reader, reader.uint32());
+          continue;
+        case 5:
+          if (tag !== 40) {
+            break;
+          }
+
+          message.discardChanges = reader.bool();
+          continue;
+        case 6:
+          if (tag !== 50) {
+            break;
+          }
+
+          message.addCombo = AddComboResponse.decode(reader, reader.uint32());
+          continue;
+        case 7:
+          if (tag !== 58) {
+            break;
+          }
+
+          message.removeCombo = RemoveComboResponse.decode(reader, reader.uint32());
+          continue;
       }
       if ((tag & 7) === 4 || tag === 0) {
         break;
@@ -238,6 +568,13 @@ export const Response = {
     return {
       getCombos: isSet(object.getCombos) ? Combos.fromJSON(object.getCombos) : undefined,
       setCombo: isSet(object.setCombo) ? setComboResponseFromJSON(object.setCombo) : undefined,
+      checkUnsavedChanges: isSet(object.checkUnsavedChanges)
+        ? globalThis.Boolean(object.checkUnsavedChanges)
+        : undefined,
+      saveChanges: isSet(object.saveChanges) ? SaveChangesResponse.fromJSON(object.saveChanges) : undefined,
+      discardChanges: isSet(object.discardChanges) ? globalThis.Boolean(object.discardChanges) : undefined,
+      addCombo: isSet(object.addCombo) ? AddComboResponse.fromJSON(object.addCombo) : undefined,
+      removeCombo: isSet(object.removeCombo) ? RemoveComboResponse.fromJSON(object.removeCombo) : undefined,
     };
   },
 
@@ -248,6 +585,21 @@ export const Response = {
     }
     if (message.setCombo !== undefined) {
       obj.setCombo = setComboResponseToJSON(message.setCombo);
+    }
+    if (message.checkUnsavedChanges !== undefined) {
+      obj.checkUnsavedChanges = message.checkUnsavedChanges;
+    }
+    if (message.saveChanges !== undefined) {
+      obj.saveChanges = SaveChangesResponse.toJSON(message.saveChanges);
+    }
+    if (message.discardChanges !== undefined) {
+      obj.discardChanges = message.discardChanges;
+    }
+    if (message.addCombo !== undefined) {
+      obj.addCombo = AddComboResponse.toJSON(message.addCombo);
+    }
+    if (message.removeCombo !== undefined) {
+      obj.removeCombo = RemoveComboResponse.toJSON(message.removeCombo);
     }
     return obj;
   },
@@ -261,6 +613,17 @@ export const Response = {
       ? Combos.fromPartial(object.getCombos)
       : undefined;
     message.setCombo = object.setCombo ?? undefined;
+    message.checkUnsavedChanges = object.checkUnsavedChanges ?? undefined;
+    message.saveChanges = (object.saveChanges !== undefined && object.saveChanges !== null)
+      ? SaveChangesResponse.fromPartial(object.saveChanges)
+      : undefined;
+    message.discardChanges = object.discardChanges ?? undefined;
+    message.addCombo = (object.addCombo !== undefined && object.addCombo !== null)
+      ? AddComboResponse.fromPartial(object.addCombo)
+      : undefined;
+    message.removeCombo = (object.removeCombo !== undefined && object.removeCombo !== null)
+      ? RemoveComboResponse.fromPartial(object.removeCombo)
+      : undefined;
     return message;
   },
 };
@@ -709,6 +1072,461 @@ export const SetComboRequest = {
     const message = createBaseSetComboRequest();
     message.index = object.index ?? 0;
     message.combo = (object.combo !== undefined && object.combo !== null) ? Combo.fromPartial(object.combo) : undefined;
+    return message;
+  },
+};
+
+function createBaseAddComboRequest(): AddComboRequest {
+  return { combo: undefined };
+}
+
+export const AddComboRequest = {
+  encode(message: AddComboRequest, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
+    if (message.combo !== undefined) {
+      Combo.encode(message.combo, writer.uint32(10).fork()).ldelim();
+    }
+    return writer;
+  },
+
+  decode(input: _m0.Reader | Uint8Array, length?: number): AddComboRequest {
+    const reader = input instanceof _m0.Reader ? input : _m0.Reader.create(input);
+    let end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseAddComboRequest();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1:
+          if (tag !== 10) {
+            break;
+          }
+
+          message.combo = Combo.decode(reader, reader.uint32());
+          continue;
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skipType(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(object: any): AddComboRequest {
+    return { combo: isSet(object.combo) ? Combo.fromJSON(object.combo) : undefined };
+  },
+
+  toJSON(message: AddComboRequest): unknown {
+    const obj: any = {};
+    if (message.combo !== undefined) {
+      obj.combo = Combo.toJSON(message.combo);
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<AddComboRequest>, I>>(base?: I): AddComboRequest {
+    return AddComboRequest.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<AddComboRequest>, I>>(object: I): AddComboRequest {
+    const message = createBaseAddComboRequest();
+    message.combo = (object.combo !== undefined && object.combo !== null) ? Combo.fromPartial(object.combo) : undefined;
+    return message;
+  },
+};
+
+function createBaseAddComboResponse(): AddComboResponse {
+  return { ok: undefined, err: undefined };
+}
+
+export const AddComboResponse = {
+  encode(message: AddComboResponse, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
+    if (message.ok !== undefined) {
+      AddComboResponseDetails.encode(message.ok, writer.uint32(10).fork()).ldelim();
+    }
+    if (message.err !== undefined) {
+      writer.uint32(16).int32(message.err);
+    }
+    return writer;
+  },
+
+  decode(input: _m0.Reader | Uint8Array, length?: number): AddComboResponse {
+    const reader = input instanceof _m0.Reader ? input : _m0.Reader.create(input);
+    let end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseAddComboResponse();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1:
+          if (tag !== 10) {
+            break;
+          }
+
+          message.ok = AddComboResponseDetails.decode(reader, reader.uint32());
+          continue;
+        case 2:
+          if (tag !== 16) {
+            break;
+          }
+
+          message.err = reader.int32() as any;
+          continue;
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skipType(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(object: any): AddComboResponse {
+    return {
+      ok: isSet(object.ok) ? AddComboResponseDetails.fromJSON(object.ok) : undefined,
+      err: isSet(object.err) ? addComboErrorCodeFromJSON(object.err) : undefined,
+    };
+  },
+
+  toJSON(message: AddComboResponse): unknown {
+    const obj: any = {};
+    if (message.ok !== undefined) {
+      obj.ok = AddComboResponseDetails.toJSON(message.ok);
+    }
+    if (message.err !== undefined) {
+      obj.err = addComboErrorCodeToJSON(message.err);
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<AddComboResponse>, I>>(base?: I): AddComboResponse {
+    return AddComboResponse.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<AddComboResponse>, I>>(object: I): AddComboResponse {
+    const message = createBaseAddComboResponse();
+    message.ok = (object.ok !== undefined && object.ok !== null)
+      ? AddComboResponseDetails.fromPartial(object.ok)
+      : undefined;
+    message.err = object.err ?? undefined;
+    return message;
+  },
+};
+
+function createBaseAddComboResponseDetails(): AddComboResponseDetails {
+  return { index: 0, combo: undefined };
+}
+
+export const AddComboResponseDetails = {
+  encode(message: AddComboResponseDetails, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
+    if (message.index !== 0) {
+      writer.uint32(8).uint32(message.index);
+    }
+    if (message.combo !== undefined) {
+      Combo.encode(message.combo, writer.uint32(18).fork()).ldelim();
+    }
+    return writer;
+  },
+
+  decode(input: _m0.Reader | Uint8Array, length?: number): AddComboResponseDetails {
+    const reader = input instanceof _m0.Reader ? input : _m0.Reader.create(input);
+    let end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseAddComboResponseDetails();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1:
+          if (tag !== 8) {
+            break;
+          }
+
+          message.index = reader.uint32();
+          continue;
+        case 2:
+          if (tag !== 18) {
+            break;
+          }
+
+          message.combo = Combo.decode(reader, reader.uint32());
+          continue;
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skipType(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(object: any): AddComboResponseDetails {
+    return {
+      index: isSet(object.index) ? globalThis.Number(object.index) : 0,
+      combo: isSet(object.combo) ? Combo.fromJSON(object.combo) : undefined,
+    };
+  },
+
+  toJSON(message: AddComboResponseDetails): unknown {
+    const obj: any = {};
+    if (message.index !== 0) {
+      obj.index = Math.round(message.index);
+    }
+    if (message.combo !== undefined) {
+      obj.combo = Combo.toJSON(message.combo);
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<AddComboResponseDetails>, I>>(base?: I): AddComboResponseDetails {
+    return AddComboResponseDetails.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<AddComboResponseDetails>, I>>(object: I): AddComboResponseDetails {
+    const message = createBaseAddComboResponseDetails();
+    message.index = object.index ?? 0;
+    message.combo = (object.combo !== undefined && object.combo !== null) ? Combo.fromPartial(object.combo) : undefined;
+    return message;
+  },
+};
+
+function createBaseRemoveComboRequest(): RemoveComboRequest {
+  return { index: 0 };
+}
+
+export const RemoveComboRequest = {
+  encode(message: RemoveComboRequest, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
+    if (message.index !== 0) {
+      writer.uint32(8).uint32(message.index);
+    }
+    return writer;
+  },
+
+  decode(input: _m0.Reader | Uint8Array, length?: number): RemoveComboRequest {
+    const reader = input instanceof _m0.Reader ? input : _m0.Reader.create(input);
+    let end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseRemoveComboRequest();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1:
+          if (tag !== 8) {
+            break;
+          }
+
+          message.index = reader.uint32();
+          continue;
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skipType(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(object: any): RemoveComboRequest {
+    return { index: isSet(object.index) ? globalThis.Number(object.index) : 0 };
+  },
+
+  toJSON(message: RemoveComboRequest): unknown {
+    const obj: any = {};
+    if (message.index !== 0) {
+      obj.index = Math.round(message.index);
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<RemoveComboRequest>, I>>(base?: I): RemoveComboRequest {
+    return RemoveComboRequest.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<RemoveComboRequest>, I>>(object: I): RemoveComboRequest {
+    const message = createBaseRemoveComboRequest();
+    message.index = object.index ?? 0;
+    return message;
+  },
+};
+
+function createBaseRemoveComboResponse(): RemoveComboResponse {
+  return { ok: undefined, err: undefined };
+}
+
+export const RemoveComboResponse = {
+  encode(message: RemoveComboResponse, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
+    if (message.ok !== undefined) {
+      RemoveComboOk.encode(message.ok, writer.uint32(10).fork()).ldelim();
+    }
+    if (message.err !== undefined) {
+      writer.uint32(16).int32(message.err);
+    }
+    return writer;
+  },
+
+  decode(input: _m0.Reader | Uint8Array, length?: number): RemoveComboResponse {
+    const reader = input instanceof _m0.Reader ? input : _m0.Reader.create(input);
+    let end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseRemoveComboResponse();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1:
+          if (tag !== 10) {
+            break;
+          }
+
+          message.ok = RemoveComboOk.decode(reader, reader.uint32());
+          continue;
+        case 2:
+          if (tag !== 16) {
+            break;
+          }
+
+          message.err = reader.int32() as any;
+          continue;
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skipType(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(object: any): RemoveComboResponse {
+    return {
+      ok: isSet(object.ok) ? RemoveComboOk.fromJSON(object.ok) : undefined,
+      err: isSet(object.err) ? removeComboErrorCodeFromJSON(object.err) : undefined,
+    };
+  },
+
+  toJSON(message: RemoveComboResponse): unknown {
+    const obj: any = {};
+    if (message.ok !== undefined) {
+      obj.ok = RemoveComboOk.toJSON(message.ok);
+    }
+    if (message.err !== undefined) {
+      obj.err = removeComboErrorCodeToJSON(message.err);
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<RemoveComboResponse>, I>>(base?: I): RemoveComboResponse {
+    return RemoveComboResponse.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<RemoveComboResponse>, I>>(object: I): RemoveComboResponse {
+    const message = createBaseRemoveComboResponse();
+    message.ok = (object.ok !== undefined && object.ok !== null) ? RemoveComboOk.fromPartial(object.ok) : undefined;
+    message.err = object.err ?? undefined;
+    return message;
+  },
+};
+
+function createBaseRemoveComboOk(): RemoveComboOk {
+  return {};
+}
+
+export const RemoveComboOk = {
+  encode(_: RemoveComboOk, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
+    return writer;
+  },
+
+  decode(input: _m0.Reader | Uint8Array, length?: number): RemoveComboOk {
+    const reader = input instanceof _m0.Reader ? input : _m0.Reader.create(input);
+    let end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseRemoveComboOk();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skipType(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(_: any): RemoveComboOk {
+    return {};
+  },
+
+  toJSON(_: RemoveComboOk): unknown {
+    const obj: any = {};
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<RemoveComboOk>, I>>(base?: I): RemoveComboOk {
+    return RemoveComboOk.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<RemoveComboOk>, I>>(_: I): RemoveComboOk {
+    const message = createBaseRemoveComboOk();
+    return message;
+  },
+};
+
+function createBaseSaveChangesResponse(): SaveChangesResponse {
+  return { ok: undefined, err: undefined };
+}
+
+export const SaveChangesResponse = {
+  encode(message: SaveChangesResponse, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
+    if (message.ok !== undefined) {
+      writer.uint32(8).bool(message.ok);
+    }
+    if (message.err !== undefined) {
+      writer.uint32(16).int32(message.err);
+    }
+    return writer;
+  },
+
+  decode(input: _m0.Reader | Uint8Array, length?: number): SaveChangesResponse {
+    const reader = input instanceof _m0.Reader ? input : _m0.Reader.create(input);
+    let end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseSaveChangesResponse();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1:
+          if (tag !== 8) {
+            break;
+          }
+
+          message.ok = reader.bool();
+          continue;
+        case 2:
+          if (tag !== 16) {
+            break;
+          }
+
+          message.err = reader.int32() as any;
+          continue;
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skipType(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(object: any): SaveChangesResponse {
+    return {
+      ok: isSet(object.ok) ? globalThis.Boolean(object.ok) : undefined,
+      err: isSet(object.err) ? saveChangesErrorCodeFromJSON(object.err) : undefined,
+    };
+  },
+
+  toJSON(message: SaveChangesResponse): unknown {
+    const obj: any = {};
+    if (message.ok !== undefined) {
+      obj.ok = message.ok;
+    }
+    if (message.err !== undefined) {
+      obj.err = saveChangesErrorCodeToJSON(message.err);
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<SaveChangesResponse>, I>>(base?: I): SaveChangesResponse {
+    return SaveChangesResponse.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<SaveChangesResponse>, I>>(object: I): SaveChangesResponse {
+    const message = createBaseSaveChangesResponse();
+    message.ok = object.ok ?? undefined;
+    message.err = object.err ?? undefined;
     return message;
   },
 };
