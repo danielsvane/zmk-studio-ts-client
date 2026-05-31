@@ -1,4 +1,4 @@
 [submodule "zmk-studio-messages"]
 	path = zmk-studio-messages
 	url = https://github.com/danielsvane/zmk-studio-messages.git
-	branch = combos
+	branch = customkeyboards
